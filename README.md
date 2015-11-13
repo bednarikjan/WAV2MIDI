@@ -1,107 +1,38 @@
 WAV2MIDI
 ========
 
-Výsledný program bakalářské práce Převod záznamu piana z WAV do MIDI.
+A program created as the main deliverable of the Bachelro thesis Conversion of piano recordings from WAV to MIDI.
 
-1) NÁVOD K INSTALACI
-============================================================================================
-(1)
-Adresáře 'src' a 'test' zkopírujte na pevný disk. Pro správnou funkčnost demonstračních
-testů musí být oba adresáře na stejné úrovni hierarchie adresářů.
+The aim of the thesis is to propose a system capable of automatic conversion of polyphonic piano recordings from the audio format WAV to MIDI. The thesis describes problems related to single tone recognition in music recordings and proposes a solution based on a probabilistic model that uses the Probabilistic Latent Component Analysis method. Recordings of isolated digital piano tones were used to train the system. The proposed system was tested on classical recordings of the Classical Piano MIDI database and on recordings of a Korg SP-250 piano and evaluated using a variety of metrics. The conclusion part contains the results of recognition success rate and their comparison with other existing systems.
 
-(2)
-Spusťte MATLAB a za pomocí pathtool (File -> Set Path) přidejte do vyhledávací cesty
-aktuální umístění adresářů 'src', 'src\midi_toolbox' a 'src\midi_tools'. Jedná se o volně
-dostupné MIDI toolboxy nezbytné pro správnou funkčnost projektu. Oba toolboxy jsou
-součástí repozitáře.
+## Install and run
 
-(3)
-Otevřete classpath.txt (do Command Window vepište "edit classpath.txt") a přidejte
-záznam s cestou vedoucí k souboru KaraokeMidiJava.jar uloženém v adresáři
-'src\midi_tools'.
+1. Copy directories 'src' and 'test' to your hard drive. For the correct functionality of the demo tests both directories must be placed in the same parnet directory.
 
-(4)
-Restartujte MATLAB.
+2. Run MATLAB a using pathtool command (File -> Set Path) add the path to the 'src', 'src\midi_toolbox' and 'src\midi_tools' to search path.
+
+3. Open classpath.txt (enter "edit classpath.txt" in the command window) and add the path to 'KaraokeMidiJava.jar' file saved in directory  'src\midi_tools'.
+
+4. Restart MATLAB.
+
+## How to use WAV2MIDI
+
+The directory 'src' contains source files of the system and the source files for the demo test. If you want to tune the system, adjust parameters in the file 'constants.m'
 
 
+### WAV2MIDI
 
-2) POUŽITÍ SYSTÉMU WAV2MIDI
-============================================================================================
-Adresář 'src' obsahuje zdrojové soubory k systému WAV2MIDI i k demonstračnímu testu.
-V souboru 'constants.m' lze přizpůsobit výchozí parametry systému.
+The system can be run as a console application by calling the function 'wav2midi.m'. It accepts the WAV file on its input and produces the corresponding MIDI file. See Synopsis for more info.
 
-WAV2MIDI
---------
-Systém WAV2MIDI lze spustit jako konzolovou aplikaci voláním funkce 'wav2midi.m'. 
-Funkce na vstupu přijímá soubor WAV s nahrávkou piana a produkuje soubor MIDI.
-Funkce wav2midi(wav, midi, thresh, snl) přijímá 4 parametry:
+### Synopsis
 
-	wav		jméno vstupního  WAV  souboru
-	midi 	jméno výstupního MIDI souboru
-	thresh	hodnota prahu (volitelné)
-	snl 	hodnota nejkratší délky tónu pro post-processing (volitelné)
-
-Pokud není zadána některá z hodnot thresh nebo snl, použijí se jejich
-výchozí hodnoty (thresh = 15, snl = 1). Volba prahu a snl ovlivňuje
-kvalitu výstupu. Čím vyšší práh a snl, tím méně not se do výstupu dostane.
-Doporučené rozsahy pro oba parametry jsou:
-
-	thresh	0 - 100
-	snl 	1 - 5
+	wav2midi(wav, midi, [thresh, [snl]])
+		
+		wav 	input WAV file name
+		midi	input MIDI file name
+		thresh	threshold, range [0, 100] (default = 15)
+		snl		the length of the shortest note accepted, range [1, 5] (default = 1)
 	
-Lze s nimi však libovolně experimentovat.
+	Parameters 'thresh' and 'snl' affect the success rate of the conversion (and resulting quality) so it is worth to experiemtn with them a bit.
 
-Zatímco výpočet PLCA a získání piano-roll matice s měkkým rozhodnutím je
-časově náročné, její následné prahování a post-processing je téměř okamžitý.
-Pro experimentování s prahy a snl je tak funkce wav2midi nevhodná, 
-protože vždy nanovo počítá PLCA, aby získala piano-roll
-matici s měkkým rozhodnutím, která bude teprve prahována. Pro experimenty
-je výhodnější využít samostatně funkci 'wav2soft_proll' a její výstup
-(piano-roll matici s měkkým rozhodnutím) uložit do proměnné.
-
-Tuto proměnnou lze následně posílat funkcím 'try_midi_view.m' a 
-'try_midi_sound.m', které pro zadaný práh zobrazí piano-roll
-matici respektive zahrají syntetizovný zvuk. Po dosažení
-optimálního prahu a snl je možné provést export do MIDI za pomoci funkce
-'soft_proll2midi.m'.
-
-DEMONSTRAČNÍ TEST
------------------
-Demonstrační test slouží k výpočtu ohodnocení úspěšnosti systému podobně,
-jako bylo popsáno v textu bakalářské práce. Test sestávající ze dvou
-dílčích testů naleznete ve skriptu 'test_demo.m' (lze jej přímo spustit).
-
-Test vyhdonotí PLCA pro každý testovaný WAV soubor v adresáři 'test\sound'
-a uloží výslednou piano-roll matici s měkkým rozhodnutím jako 
-MAT-file do adresáře 'test\auxdata'.
-
-Test1:
-	Pro každý testovaný soubor načte piano-roll matici s měkkým rozhodnutím,
-	aplikuje na ni práh a post-processing (s výchozími hodnotami prahu a dkn),
-	porovná s referenčním MIDI souborem a vyhodnotí note-level a frame-level
-	metriky. Výsledky pro každý testovaný soubor uloží do souboru 'test1.txt'
-	v adresáři 'test\results'. Současně do konzole vypíše průměrné hodnoty
-	všech výsledků metrik v následujícím formátu (viz text BP, kapitola
-	5.1 Metriky):
 	
-		corr  fa  is  ex  Etot  Esubs  Emiss  Efa
-	
-Test2:
-	To samé, jako Test1, ale nepoužívá výchozí hodnotu prahu a snl, nýbrž
-	tyto stanoví jako nejvhodnější pro danou testovací sadu. Každý
-	testovaný soubor porovná s referenčním MIDI souborem při využití
-	různých kombinací prahů a snl (lze nastavit v 'constants.m').
-	Vektory výsledků těchto spočtených kombinací ukládá pro každý soubor
-	jako matici výsledků do MAT-file se jménem končícím na '_res_.mat'. Následně
-	pro každý testovaný soubor vybere nejlepší vektor výsledků takový,
-	který obsahuje hodnotu falešného poplachu (fa) maximálně o hodnotě
-	15 % (lze upravit v 'constants.m' pod proměnnou 'worstFa'). Z těchto
-	nejlepších vektorů stanový průměrný práh a snl a dále pokračuje jako
-	Test1 s tím, že textový soubor s výsledky uloží do 'test\results' pod
-	jménem 'test2.txt'. Současně do konzole vypíše průměrné hodnoty všech výsledků metrik
-	ve stejném formátu jako Test1.
-
-Pro demonstraci je pro testování přiloženo 8 1minutových nahrávek autorů
-klasické klavírní hudby syntetizovaných z referenčních MIDI souborů.
-V závislosti na výkonu počítače může zpracování testu trvat 10-20 minut.
-Pro urychlení testu lze smazat některé WAV nahrávky a jejich referenční MIDI.
